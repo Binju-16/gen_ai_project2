@@ -1,59 +1,260 @@
-# Research Synthesis Agent — Project 2 Draft
+# Research Synthesis Agent
 
-This project is an agentic AI research assistant built with Streamlit and OpenAI. It helps users synthesize multiple research abstracts or text documents by identifying key themes, methodologies, conflicts, research gaps, and future research questions.
+## Overview
 
-## Project Goal
+Research Synthesis Agent is an AI-powered research assistant built using Streamlit and OpenAI. The system helps users analyze research abstracts and research documents by generating structured literature-review style outputs.
 
-The goal is to build a working draft of an AI system that goes beyond simple summarization. The agent analyzes user-provided research content, produces a structured synthesis, accepts reviewer feedback, and refines its output.
+Unlike a traditional summarization tool, the agent performs multiple research-support tasks, including:
+
+* Research synthesis
+* Theme extraction
+* Methodology identification
+* Research gap analysis
+* Future research question generation
+* Reviewer-feedback refinement
+
+The project was developed for Project 2 (Agentic Systems) in the Generative AI course.
+
+---
+
+## Motivation
+
+As a graduate student in Data Science and Analytics, I frequently read research papers for coursework, projects, and professional development. One challenge is quickly understanding multiple papers while identifying common themes, limitations, and future opportunities.
+
+This project explores how AI can assist researchers during the literature review process while keeping humans in control of final decisions.
+
+---
+
+## Agent Workflow
+
+The Research Synthesis Agent performs the following workflow:
+
+### Step 1: Collect Documents
+
+The user provides:
+
+* Research abstracts
+* Research notes
+* Text documents
+
+### Step 2: Analyze Research Content
+
+The agent reviews the uploaded content and extracts:
+
+* Major findings
+* Key themes
+* Research methodologies
+
+### Step 3: Generate Research Synthesis
+
+The agent creates a structured synthesis containing:
+
+* Research Summary
+* Major Themes
+* Methodologies
+* Conflicting Findings
+* Research Gaps
+* Future Research Questions
+
+### Step 4: Ground Outputs
+
+The agent references the uploaded source documents and displays grounding information.
+
+### Step 5: Accept Reviewer Feedback
+
+The user can provide feedback such as:
+
+* Focus more on methodology
+* Expand limitations
+* Generate stronger research questions
+
+### Step 6: Refine Output
+
+The agent revises its synthesis based on the reviewer feedback.
+
+---
 
 ## Features
 
-- Paste multiple paper abstracts
-- Upload multiple text files
-- Generate structured research synthesis
-- Extract major themes
-- Identify methodologies
-- Detect possible conflicts
-- Suggest research gaps
-- Generate future research questions
-- Refine output using user feedback
-- Include human review warning
+### Research Analysis
 
-## Tech Stack
+* Structured research summaries
+* Theme extraction
+* Methodology extraction
+* Research gap detection
+* Future research question generation
 
-- Python
-- Streamlit
-- OpenAI API
-- python-dotenv
-- pytest
-- Streamlit Cloud
+### Grounding
 
-## How It Is Agentic
+* Source document display
+* Grounding references
+* Human-review warning
 
-The system performs a multi-step workflow:
+### Agentic Behavior
 
-1. Collects research documents
-2. Processes uploaded content
-3. Synthesizes findings
-4. Identifies themes and gaps
-5. Detects possible conflicts
-6. Asks for user feedback
-7. Revises the synthesis based on feedback
+* Multi-step workflow
+* Feedback-driven refinement
+* Iterative synthesis generation
 
-## Grounding Strategy
+---
 
-The model is grounded in the research text provided by the user. It is instructed not to invent findings or make unsupported claims. Outputs should reference the uploaded documents whenever possible.
+## Example Output
+
+The agent generates outputs in the following structure:
+
+```json
+{
+  "research_summary": "...",
+  "major_themes": [],
+  "methodologies": [],
+  "conflicting_findings": [],
+  "research_gaps": [],
+  "future_research_questions": [],
+  "confidence_score": 0.95,
+  "grounding_refs": []
+}
+```
+
+---
 
 ## Prompt Engineering
 
-This project uses:
+The project uses several prompt-engineering techniques:
 
-- Role prompting
-- Structured JSON output
-- Grounding constraints
-- Few-shot examples
-- Reviewer feedback refinement
-- Human review warning
+### Role Prompting
 
-Prompt iterations and testing notes are documented in `BUILDLOG.md`.
+The model is instructed to behave as a Research Synthesis Agent.
 
+### Structured Output Prompting
+
+The model must return valid JSON following a predefined schema.
+
+### Grounded Prompting
+
+The model is instructed to use only uploaded research documents.
+
+### Constraint Prompting
+
+The model is prohibited from fabricating citations or unsupported findings.
+
+### Iterative Refinement
+
+The system accepts reviewer feedback and generates improved outputs.
+
+Prompt iterations and design decisions are documented in BUILDLOG.md.
+
+---
+
+## Grounding Strategy
+
+The system is grounded using user-provided research content.
+
+Grounding sources include:
+
+* Research abstracts
+* Text documents
+* Research notes
+
+The application displays:
+
+* Source document previews
+* Grounding references
+* Human review warnings
+
+This helps users verify where conclusions originate.
+
+---
+
+## Evaluation
+
+The system is evaluated using multiple research-paper test cases.
+
+Evaluation criteria include:
+
+* Summary quality
+* Theme extraction quality
+* Methodology identification
+* Research gap quality
+* Conflict detection
+* Grounding accuracy
+* Feedback responsiveness
+
+Detailed results are documented in EVALUATION.md.
+
+---
+
+## Technology Stack
+
+### Frontend
+
+* Streamlit
+
+### Backend
+
+* Python
+
+### AI Model
+
+* OpenAI GPT-4o-mini
+
+### Deployment
+
+* Streamlit Community Cloud
+
+### Supporting Libraries
+
+* openai
+* python-dotenv
+* pytest
+
+---
+
+## Local Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+cd gen_ai_project2
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create a .env file:
+
+```env
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=gpt-4o-mini
+MOCK_MODE=0
+```
+
+Run the application:
+
+```bash
+streamlit run app.py
+```
+
+---
+
+## Project Documentation
+
+Additional project documentation:
+
+* roadmap.md
+* PROJECT_JOURNAL.md
+* BUILDLOG.md
+* EVALUATION.md
+
+These documents describe the project's planning, development process, testing, prompt engineering decisions, and evaluation results.
+
+---
+
+## Human Review Warning
+
+This application is intended to assist research synthesis and literature review.
+
+Generated outputs should be reviewed by a human before being used in academic, professional, or research decision-making.
