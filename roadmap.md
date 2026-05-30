@@ -1,146 +1,548 @@
-# Project 2 — Roadmap: Autonomous, Tool-Using AI for Policy/Rule Updates
+# Project 2 — Roadmap: Research Synthesis Agent
 
-1. Project context
-------------------
-- Build a small, demonstrable AI system that ingests policy or rule updates (plain text or spreadsheet-style rows), summarizes the change into structured fields, and suggests dashboard logic or pseudo-code for human review.
-- Emphasis: autonomy in analysis and tool use (file handling, summarization), but with mandatory human-in-the-loop review.
+## 1. Project Context
 
-2. Problem statement
---------------------
-- Organizations need a safe, auditable way to apply policy/rule updates. Manual triage is slow and error-prone. We propose a lightweight assistant that converts freeform updates into structured summaries and suggested actions while grounding outputs in uploaded policy text.
+The Research Synthesis Agent is an agentic AI system designed to help researchers, graduate students, and analysts quickly understand large collections of research papers. Instead of simply summarizing documents, the system performs multiple research-support tasks, including theme extraction, conflict detection, gap analysis, and future research question generation.
 
-3. Target user
-----------------
-- Product managers, compliance officers, or developer-operators who receive policy/rule changes and need a fast, auditable summary and suggested dashboard logic to implement and review.
+The project explores how generative AI can assist the literature review process by acting as an intelligent research assistant that works with user-provided research documents and continuously improves its outputs through human feedback.
 
-4. MVP scope for this week
--------------------------
-- Single-page web prototype (Streamlit or Gradio) with:
-  - Textbox to paste a policy/rule update.
-  - Optional example input prefilled.
-  - Button to upload a policy file (text/CSV/TSV) used for grounding.
-  - AI-generated structured summary (JSON-like fields).
-  - Suggested dashboard logic or pseudo-code snippet.
-  - Human-review warning and “confidence” estimate.
-  - Minimal logging of prompts and outputs for the build log.
-
-5. Out-of-scope items for the draft
-----------------------------------
-- Full RBAC, automated enforcement, or live integrations with production dashboards.
-- Complex multi-agent orchestration, real-time streaming, or expensive fine-tuning.
-
-6. Recommended tech stack
--------------------------
-- Prototype (simplest): Streamlit (Python) or Gradio — both are beginner-friendly and deploy to free hosting quickly.
-- Backend logic: Python 3.10+, `requests` or `httpx`, `pandas` (optional for CSV), `python-dotenv` for secrets.
-- LLM access: OpenAI-compatible API or Hugging Face Inference endpoints; for a no-cost path, use local or HF-hosted open models (or the community `text-generation` endpoints).
-- Repo: GitHub with clear commits.
-
-7. Hosting/deployment plan
--------------------------
-- Easiest: Streamlit Cloud (free tier) or Hugging Face Spaces (Gradio/Streamlit). Both support public URLs quickly.
-- Alternative: Deploy a small Flask app to Render or Railway (free tiers available), or host on Vercel/Netlify with serverless functions.
-
-8. System prompt design
-------------------------
-- Purposeful, concise system prompt to set role, constraints, grounding priority, and safety rules. Example elements:
-  - Role: assistant that ingests policy/rule updates and returns a structured summary and suggested dashboard logic.
-  - Constraints: do NOT auto-enact changes, always include a human-review warning, cite grounding sources by filename/row index.
-  - Output format: JSON with fields `title`, `change_type`, `affected_entities`, `summary`, `suggested_checks`, `dashboard_pseudocode`, `confidence`, `grounding_refs`.
-
-9. Prompt engineering techniques to use
--------------------------------------
-- Chain-of-thought suppression for deterministic outputs (use `format`/`system` instructions to avoid extra reasoning text).
-- Few-shot examples showing input → desired structured JSON.
-- Output schema enforcement (explicit JSON schema in prompt). Provide positive and negative examples.
-- Temperature control: low temperature (0–0.2) for deterministic summaries; experiment with higher for alternative phrasing.
-- Prompt snapshot logging: save prompt + system prompt + grounding snippet for reproducibility.
-
-10. Grounding strategy
-----------------------
-- Accept uploaded policy text or CSV/TSV. Preprocess into numbered paragraphs or rows.
-- When calling the LLM, include only relevant slices (max token aware) and always instruct the model to cite the exact paragraph/row index used as grounding.
-- For larger policies, implement a simple retrieval step: convert paragraphs/rows to embeddings (optional) and retrieve top-k, or use naive keyword matching for the MVP.
-
-11. Coding plan
----------------
-- Repo layout:
-  - `app.py` — Streamlit/Gradio app.
-  - `src/processor.py` — parsers and summarizer wrapper.
-  - `src/prompt_templates.py` — system prompt and examples.
-  - `tests/` — small pytest harness for parser and prompt formatting.
-  - `.env.template` — environment vars document.
-- Implementation order: UI → prompt wrapper → grounding retrieval → structured output → logging → tests.
-
-12. Test harness / evaluation plan
----------------------------------
-- Unit tests for: parsing CSV/TSV, turning policy text into numbered references, and prompt/payload formatting.
-- Integration test: mocked LLM responses to validate JSON schema and grounding citations.
-- Manual tests: 5–10 sample policy updates (diverse short/long) run through the app and recorded in the build log.
-
-13. Success metrics
--------------------
-- Working prototype deployed at a public URL.
-- Repo with at least 8–12 meaningful commits and clear README/build log entries.
-- For 10 sample updates: 80% of summaries judged “accurate” by a human reviewer (basic manual rubric).
-- Structured JSON returned in 95% of calls without syntax errors.
-
-14. Risks and limitations
-------------------------
-- Hallucinations: LLM may invent grounding if prompts are not strict — mitigate by forcing citations.
-- Privacy: uploaded policies may be sensitive — warn users and avoid sending to third-party APIs without consent.
-- Dependence on paid APIs: can be mitigated using open models, but quality may vary.
-
-15. GitHub commit plan
----------------------
-- Commit 1: Repo skeleton, `roadmap.md`, `.gitignore`, `.env.template`.
-- Commit 2: Basic Streamlit/Gradio UI with paste box and file upload (no LLM calls).
-- Commit 3: Prompt templates and LLM wrapper (configurable to mock or real API).
-- Commit 4: Grounding preprocessing and citation mechanism.
-- Commit 5: Output formatting, logging, and README stub.
-- Commit 6: Tests and evaluation samples.
-- Commit 7: Deployment configuration and final README/build log update.
-
-16. README/build log plan
--------------------------
-- Keep a `BUILDLOG.md` or extend the main `README.md` with dated entries recording:
-  - Prompt text versions and rationale.
-  - Prompts tried and what changed (A/B style).
-  - Test inputs and outputs with human evaluation notes.
-  - Deployment URL and instructions.
-
-17. Questions I need to answer before coding
--------------------------------------------
-- Preferred UI: `Streamlit`, `Gradio`, `Flask`, or other? (Streamlit recommended for fastest path.)
-- Hosting preference: Streamlit Cloud, Hugging Face Spaces, Render, or local only?
-- API access: will you use a paid OpenAI API key, or prefer a free/open-model path (HF)?
-- Secrets: are you comfortable using environment variables or a secrets manager? (We will never hardcode keys.)
-- Sample data: what example policy/rule inputs should I include for demos? (Provide 3–5 examples if available.)
-- Success definition: what human-judged threshold counts as “accurate” for summaries?
-
-18. Step-by-step task list for building the MVP
-----------------------------------------------
-1. Initialize GitHub repo and push skeleton (README, `.gitignore`, `.env.template`).
-2. Implement `app.py` with a textbox, file upload, example input, and submit button.
-3. Add `src/prompt_templates.py` with system prompt and 2–3 few-shot examples.
-4. Implement `src/processor.py` with a `prepare_grounding()` function that numbers paragraphs/rows.
-5. Implement LLM wrapper in a configurable way (mock mode + real API mode using `OPENAI_API_KEY` or HF token).
-6. Wire UI submit to call processor + LLM wrapper and render JSON output and pseudo-code.
-7. Add a human-review warning and simple confidence heuristic (length match, presence of citations).
-8. Log prompt + grounding + model output to a local `buildlog/` file.
-9. Add 5 sample inputs and run manual eval; record results in `BUILDLOG.md`.
-10. Add basic unit tests for parsing and prompt formatting.
-11. Deploy to Streamlit Cloud or Hugging Face Spaces; add deployment steps to README.
-
--- Technical questions for you (please answer):
-- Which UI framework do you prefer: `Streamlit`, `Gradio`, or `Flask`?
-- Which hosting option do you want to target first (Streamlit Cloud, HF Spaces, Render)?
-- Will you provide an API key for a paid LLM, or do you prefer a free/open-model path?
-- Do you want example policy inputs included now? If so, upload 3 sample snippets or paste them here.
-- What threshold should we use for “accurate” in manual evaluation (e.g., 80% of key facts present)?
-
--- Notes / quick-start recommendation
-- For the shortest route: use `Streamlit` + OpenAI or HF Inference + Streamlit Cloud deployment. Use environment variables for keys and a mock mode for local testing without paid keys.
+This project aligns with the course focus on agentic systems by demonstrating AI that can take actions, use tools, perform multiple reasoning steps, and refine its work based on user interaction.
 
 ---
-Created as a working draft to meet the course rubric — happy to iterate next on chosen UI and sample inputs.
+
+## 2. Problem Statement
+
+Researchers often spend significant time reviewing academic papers, identifying common themes, comparing methodologies, finding conflicting findings, and discovering opportunities for future research.
+
+Traditional AI summarization tools provide basic summaries but do not actively assist with deeper synthesis tasks.
+
+This project aims to build an AI-powered research assistant that can:
+
+* Analyze multiple research papers simultaneously
+* Identify common themes and trends
+* Detect contradictions between findings
+* Discover research gaps
+* Generate future research questions
+* Improve results through reviewer feedback
+
+The goal is to reduce the time required for early-stage literature reviews while keeping humans in control of the final interpretation.
+
+---
+
+## 3. Target User
+
+### Primary Users
+
+* Graduate students
+* Academic researchers
+* Research assistants
+* Data scientists
+* Faculty members
+
+### Secondary Users
+
+* Industry researchers
+* Policy analysts
+* Technical writers
+* Students conducting literature reviews
+
+---
+
+## 4. MVP Scope for This Week
+
+The MVP will include:
+
+### Research Input
+
+* Paste multiple paper abstracts
+* Upload multiple text files
+* Process multiple research documents simultaneously
+
+### Agent Analysis
+
+The system will:
+
+* Generate structured summaries
+* Extract major themes
+* Identify methodologies used
+* Detect possible conflicts between papers
+* Identify research gaps
+* Generate future research questions
+
+### Human Feedback Loop
+
+Users can provide feedback such as:
+
+* Focus more on methodology
+* Expand on limitations
+* Generate more research questions
+* Simplify explanations
+* Highlight conflicting findings
+
+The agent will revise its synthesis based on this feedback.
+
+### Output
+
+The system will generate:
+
+* Research Summary
+* Key Themes
+* Methodologies
+* Research Gaps
+* Conflicting Findings
+* Future Research Questions
+* Confidence Score
+* Human Review Warning
+
+---
+
+## 5. Out-of-Scope Items for the Draft
+
+The following features are intentionally excluded from the draft version:
+
+* Full PDF parsing
+* Citation generation
+* Automated paper retrieval from databases
+* Vector databases
+* Multi-agent orchestration frameworks
+* Long-term memory
+* User authentication
+* Production-level security
+* Fine-tuning custom models
+
+---
+
+## 6. Recommended Tech Stack
+
+### Frontend
+
+* Streamlit
+
+### Backend
+
+* Python
+
+### AI Model
+
+* OpenAI GPT-4o-mini
+
+### Deployment
+
+* Streamlit Cloud
+
+### Environment Management
+
+* python-dotenv
+
+### Testing
+
+* pytest
+
+### Version Control
+
+* GitHub
+
+---
+
+## 7. Hosting / Deployment Plan
+
+### Development Environment
+
+Local development will be performed using Streamlit:
+
+```bash
+streamlit run app.py
+```
+
+### Public Deployment
+
+The application will be deployed using Streamlit Cloud.
+
+Deployment requirements:
+
+* Public GitHub repository
+* requirements.txt
+* Streamlit secrets configuration
+* OpenAI API key stored securely
+
+Deployment URL will be added to the README once available.
+
+---
+
+## 8. System Prompt Design
+
+The system prompt will define the model as a Research Synthesis Agent.
+
+### Agent Responsibilities
+
+* Analyze uploaded research documents
+* Extract major themes
+* Compare findings across papers
+* Identify research gaps
+* Detect contradictions
+* Generate future research questions
+* Incorporate reviewer feedback
+* Remain grounded in provided research content
+
+### Agent Constraints
+
+* Do not invent findings
+* Do not fabricate citations
+* Do not claim certainty when evidence is limited
+* State uncertainty when appropriate
+* Require human review for important conclusions
+
+### Output Requirements
+
+All responses must follow a structured schema containing:
+
+* Summary
+* Themes
+* Methodologies
+* Conflicts
+* Research Gaps
+* Future Research Questions
+* Confidence Score
+* Grounding References
+
+---
+
+## 9. Prompt Engineering Techniques
+
+The project will demonstrate deliberate prompt engineering through:
+
+### Role Prompting
+
+The model will be assigned the role of an expert research synthesis assistant.
+
+### Structured Output Prompting
+
+The model will return information in a predefined JSON structure.
+
+### Grounded Prompting
+
+The model will use only uploaded documents as evidence.
+
+### Few-Shot Prompting
+
+Examples of desired synthesis outputs will be included.
+
+### Constraint Prompting
+
+Instructions will prevent unsupported conclusions and hallucinations.
+
+### Iterative Prompt Refinement
+
+Multiple prompt versions will be tested and documented in BUILDLOG.md.
+
+---
+
+## 10. Grounding Strategy
+
+Grounding will be achieved using user-provided research content.
+
+### Grounding Sources
+
+* Uploaded abstracts
+* Uploaded text files
+* Research notes
+
+### Grounding Rules
+
+The model must:
+
+* Use only provided documents
+* Reference source document numbers
+* Avoid unsupported claims
+* Explicitly identify uncertainty
+
+Example:
+
+Theme: Machine Learning in Education
+
+Supporting Sources:
+
+* Paper 1
+* Paper 3
+* Paper 5
+
+This ensures transparency and reduces hallucination risk.
+
+---
+
+## 11. Agent Workflow
+
+### Step 1 — Document Collection
+
+User uploads abstracts or research documents.
+
+### Step 2 — Document Processing
+
+The system:
+
+* Cleans text
+* Splits documents
+* Creates document identifiers
+
+### Step 3 — Theme Extraction
+
+The agent identifies recurring themes across documents.
+
+### Step 4 — Methodology Analysis
+
+The agent identifies common research methods and approaches.
+
+### Step 5 — Conflict Detection
+
+The agent compares findings and highlights contradictions.
+
+### Step 6 — Gap Analysis
+
+The agent identifies missing research areas and unanswered questions.
+
+### Step 7 — Research Question Generation
+
+The agent proposes future research directions.
+
+### Step 8 — Reviewer Feedback
+
+The user provides feedback.
+
+### Step 9 — Refinement
+
+The agent updates and improves its synthesis using the feedback.
+
+---
+
+## 12. Test Harness / Evaluation Plan
+
+The project will include both automated and manual evaluation.
+
+### Evaluation Dataset
+
+Five manually selected groups of research abstracts.
+
+### Evaluation Criteria
+
+#### Theme Accuracy
+
+Did the system identify the major themes?
+
+#### Gap Quality
+
+Are the identified gaps meaningful?
+
+#### Conflict Detection
+
+Did the system identify contradictory findings?
+
+#### Grounding
+
+Are conclusions supported by uploaded documents?
+
+#### Feedback Responsiveness
+
+Did user feedback improve the synthesis?
+
+### Manual Evaluation Rubric
+
+Each category will be scored:
+
+* Pass
+* Partial Pass
+* Fail
+
+Results will be recorded in BUILDLOG.md.
+
+---
+
+## 13. Success Metrics
+
+The project will be considered successful if:
+
+### Functionality
+
+* The app processes multiple documents
+* The app generates a synthesis
+* The app supports user feedback
+
+### Quality
+
+* Themes are correctly identified
+* Research gaps are reasonable
+* Conflicts are detected accurately
+
+### Deployment
+
+* Public Streamlit deployment available
+* GitHub repository accessible
+
+### Evaluation
+
+Target:
+
+* 80% or higher pass rate across evaluation criteria
+
+---
+
+## 14. Risks and Limitations
+
+### Risks
+
+* Hallucinated findings
+* Incomplete abstracts
+* Missing context
+* Ambiguous research conclusions
+* Limited information in short abstracts
+
+### Mitigation Strategies
+
+* Strong grounding instructions
+* Structured prompts
+* Human review warnings
+* Source references
+* Feedback-driven refinement
+
+---
+
+## 15. GitHub Commit Plan
+
+### Commit 1
+
+Create project structure and roadmap.
+
+### Commit 2
+
+Build Streamlit interface.
+
+### Commit 3
+
+Integrate OpenAI API.
+
+### Commit 4
+
+Implement document processing.
+
+### Commit 5
+
+Implement theme extraction.
+
+### Commit 6
+
+Implement conflict detection.
+
+### Commit 7
+
+Implement research gap analysis.
+
+### Commit 8
+
+Add feedback refinement loop.
+
+### Commit 9
+
+Add evaluation framework.
+
+### Commit 10
+
+Deploy application and update documentation.
+
+---
+
+## 16. README / Build Log Plan
+
+### README
+
+The README will include:
+
+* Project overview
+* Motivation
+* Features
+* Technology stack
+* Deployment URL
+* Installation instructions
+* Example inputs and outputs
+* Evaluation methodology
+
+### BUILDLOG
+
+BUILDLOG.md will document:
+
+* Prompt iterations
+* Prompt engineering decisions
+* Testing results
+* Failures and fixes
+* Evaluation outcomes
+* Lessons learned
+
+---
+
+## 17. Questions to Answer Before Final Submission
+
+### Research Questions
+
+* How many papers should be analyzed simultaneously?
+* What defines a meaningful research gap?
+* How should conflicts be identified?
+
+### System Questions
+
+* How should feedback modify outputs?
+* What confidence metrics should be reported?
+* What evaluation criteria matter most?
+
+### User Experience Questions
+
+* How much detail should summaries contain?
+* How should findings be visualized?
+* What information is most valuable to researchers?
+
+---
+
+## 18. Step-by-Step Task List for Building the MVP
+
+### Phase 1 — Foundation
+
+* Create repository
+* Configure Streamlit
+* Configure OpenAI API
+* Build user interface
+
+### Phase 2 — Core Agent
+
+* Implement document ingestion
+* Implement synthesis generation
+* Implement theme extraction
+* Implement methodology analysis
+
+### Phase 3 — Advanced Analysis
+
+* Implement conflict detection
+* Implement research gap identification
+* Implement research question generation
+
+### Phase 4 — Feedback Loop
+
+* Implement reviewer feedback input
+* Implement synthesis refinement
+* Compare original and revised outputs
+
+### Phase 5 — Evaluation
+
+* Create evaluation dataset
+* Develop scoring rubric
+* Run test cases
+* Record results
+
+### Phase 6 — Deployment
+
+* Deploy to Streamlit Cloud
+* Verify functionality
+* Update README
+* Finalize BUILDLOG
+
+---
+
+## Project Vision
+
+The Research Synthesis Agent aims to become an intelligent literature review assistant capable of helping researchers understand large collections of research papers, identify knowledge gaps, compare findings, and generate future research directions through an interactive, grounded, and feedback-driven workflow.
