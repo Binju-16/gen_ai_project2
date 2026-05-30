@@ -256,5 +256,4 @@ These documents describe the project's planning, development process, testing, p
 ## Human Review Warning
 
 This application is intended to assist research synthesis and literature review.
-
 Generated outputs should be reviewed by a human before being used in academic, professional, or research decision-making.
