@@ -1,170 +1,349 @@
-# Build Log
+# BUILD_LOG.md
 
-2026-05-29: Scaffold Streamlit Research Synthesis Agent prototype.
-- Added `app.py`, `src/` helpers, `README.md`, `requirements.txt`, and `.env.template`.
-- Next: implement LLM wiring, grounding retrieval, evaluation samples.
+# Research Synthesis Agent – Build Log
 
----
-Input docs: 5
-Prompt snapshot: ...
-{"title": "Mock Synthesis", "summaries": [{"text": "This work proposes a new meta-heuristic method called Arithmetic Optimization Algorithm (AOA) that utilizes the distribution behavior of the main arithmetic operators in mathematics including (Multipl", "grounding_refs": [0]}, {"text": "), Division (", "grounding_refs": [1]}, {"text": "), Subtraction (", "grounding_refs": [2]}, {"text": "), and Addition (", "grounding_refs": [3]}, {"text": ")). AOA is mathematically modeled and implemented to perform the optimization processes in a wide range of search spaces. The performance of AOA is checked on twenty-nine benchmark functions and sever", "grounding_refs": [4]}], "themes": ["theme_placeholder"], "gaps": [], "dashboard_pseudocode": "# pseudocode: display summary list and theme counts", "confidence": 0.5, "grounding_refs": [0, 1, 2, 3, 4]}
+## Project Overview
 
----
-Run: Research Synthesis Agent
-Input documents: 1
-Model: gpt-4o-mini
-Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
-{
-  "title": "Mock Synthesis",
-  "summaries": [
-    {
-      "text": "The use of timber\u2013steel composite floor systems consisting of a timber floor slab connected to steel beams is increasing in North America. However, questions remain surrounding the performance of self",
-      "grounding_refs": [
-        0
-      ]
-    }
-  ],
-  "themes": [
-    "theme_placeholder"
-  ],
-  "gaps": [],
-  "dashboard_pseudocode": "# pseudocode: display summary list and theme counts",
-  "confidence": 0.5,
-  "grounding_refs": [
-    0
-  ]
-}
+The goal of this project is to build an AI-powered Research Synthesis Agent that can:
+
+* Analyze research abstracts and research documents
+* Generate structured literature-review style summaries
+* Extract major themes
+* Identify methodologies
+* Detect conflicting findings
+* Identify research gaps
+* Generate future research questions
+* Accept reviewer feedback
+* Refine outputs iteratively
+
+Unlike a simple chatbot, this system is designed as an agent that performs a sequence of tasks and improves its output based on human feedback.
 
 ---
-Run: Research Synthesis Agent
-Input documents: 1
-Model: gpt-4o-mini
-Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
-{
-  "research_summary": "This draft synthesis is based on the provided research text. The documents appear to discuss technical or academic findings that require deeper review.",
-  "major_themes": [
-    "Research problem and motivation",
-    "Methodological approach",
-    "Findings and implications"
-  ],
-  "methodologies": [
-    "Document-based analysis",
-    "Research synthesis",
-    "Comparative review"
-  ],
-  "conflicting_findings": [
-    "No clear conflicting findings were detected from the provided text alone."
-  ],
-  "research_gaps": [
-    "More documents may be needed to identify stronger research gaps.",
-    "The current synthesis is limited by the amount and detail of the uploaded text."
-  ],
-  "future_research_questions": [
-    "What patterns appear across a larger set of papers?",
-    "Which methods produce the most reliable findings?",
-    "What limitations are repeated across the literature?"
-  ],
-  "confidence_score": 0.75,
-  "grounding_refs": [
-    0
-  ]
-}
+
+# Version 1 – Project Planning
+
+Date: May 2026
+
+## Objective
+
+Create an agentic AI system for research synthesis that satisfies the Generative AI Project 2 requirements.
+
+## Decisions
+
+Selected:
+
+* Python
+* Streamlit
+* OpenAI GPT-4o-mini
+* Streamlit Community Cloud
+
+Rejected:
+
+* Flask (more setup)
+* FastAPI (unnecessary complexity)
+* Local-only deployment
+
+Reason:
+
+Streamlit allows rapid development and deployment while satisfying course requirements.
 
 ---
-Run: Research Synthesis Agent
-Input documents: 1
-Model: gpt-4o-mini
-Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
-{
-  "research_summary": "This draft synthesis is based on the provided research text. The documents appear to discuss technical or academic findings that require deeper review.",
-  "major_themes": [
-    "Research problem and motivation",
-    "Methodological approach",
-    "Findings and implications"
-  ],
-  "methodologies": [
-    "Document-based analysis",
-    "Research synthesis",
-    "Comparative review"
-  ],
-  "conflicting_findings": [
-    "No clear conflicting findings were detected from the provided text alone."
-  ],
-  "research_gaps": [
-    "More documents may be needed to identify stronger research gaps.",
-    "The current synthesis is limited by the amount and detail of the uploaded text."
-  ],
-  "future_research_questions": [
-    "What patterns appear across a larger set of papers?",
-    "Which methods produce the most reliable findings?",
-    "What limitations are repeated across the literature?"
-  ],
-  "confidence_score": 0.75,
-  "grounding_refs": [
-    0
-  ]
-}
+
+# Version 2 – Initial Prototype
+
+## Features Added
+
+* Streamlit interface
+* Text input area
+* File upload support
+* Research synthesis workflow
+* Mock output mode
+
+## Outcome
+
+The application could accept research text and generate placeholder outputs.
+
+## Limitation
+
+Outputs were not generated by a real LLM.
 
 ---
-Run: Research Synthesis Agent
-Input documents: 1
-Model: gpt-4o-mini
-Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
-{
-  "research_summary": "The paper investigates the performance of timber-steel composite floor systems, focusing on the behavior of cross-laminated timber (CLT)-steel composite beams with self-tapping screws as shear connectors. It highlights the influence of various parameters on performance and presents methods for determining bending stiffness and moment resistance, demonstrating significant improvements in moment resistance due to partial composite action.",
-  "major_themes": [
-    "Timber-steel composite systems",
-    "Cross-laminated timber (CLT)",
-    "Shear connections in structural engineering"
-  ],
-  "methodologies": [
-    "Experimental analysis",
-    "Behavioral assessment",
-    "Design approach comparison"
-  ],
-  "conflicting_findings": [],
-  "research_gaps": [
-    "Need for further investigation into the performance of self-tapping screw shear connections",
-    "Lack of studies on the long-term durability of CLT-steel composite systems"
-  ],
-  "future_research_questions": [
-    "How do different shear connection types affect the long-term performance of CLT-steel composites?",
-    "What are the implications of varying environmental conditions on the performance of timber-steel composite systems?"
-  ],
-  "confidence_score": 0.95,
-  "grounding_refs": [
-    0
-  ]
-}
+
+# Version 3 – Prompt Engineering
+
+## Initial Prompt
+
+The original prompt simply requested a summary.
+
+Example:
+
+"Summarize these research papers."
+
+### Problem
+
+Outputs were inconsistent.
+
+Important information was frequently omitted.
 
 ---
-Run: Research Synthesis Agent
-Input documents: 1
-Model: gpt-4o-mini
-Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
-{
-  "research_summary": "The paper investigates the performance of timber-steel composite floor systems, focusing on the behavior of cross-laminated timber (CLT)-steel composite beams with self-tapping screws as shear connectors. It presents experimental results that highlight the influence of various parameters on performance and proposes methods for determining effective bending stiffness and moment resistance.",
-  "major_themes": [
-    "Timber-steel composite systems",
-    "Cross-laminated timber (CLT)",
-    "Shear connections in structural engineering"
-  ],
-  "methodologies": [
-    "Experimental analysis",
-    "Behavioral assessment",
-    "Design approach comparison"
-  ],
-  "conflicting_findings": [],
-  "research_gaps": [
-    "Need for further investigation into the performance of self-tapping screw shear connections",
-    "Lack of comprehensive studies on the long-term durability of CLT-steel composite systems"
-  ],
-  "future_research_questions": [
-    "How do different environmental conditions affect the performance of CLT-steel composite beams?",
-    "What are the implications of varying screw spacing on the overall structural integrity of composite systems?"
-  ],
-  "confidence_score": 1.0,
-  "grounding_refs": [
-    0
-  ]
-}
+
+## Prompt Iteration 2
+
+Added role definition:
+
+"You are a Research Synthesis Assistant."
+
+Added explicit tasks:
+
+* summarize findings
+* identify themes
+* identify methodologies
+* identify gaps
+
+### Result
+
+Outputs became more structured.
+
+---
+
+## Prompt Iteration 3
+
+Added strict JSON schema requirements.
+
+Required fields:
+
+* research_summary
+* major_themes
+* methodologies
+* conflicting_findings
+* research_gaps
+* future_research_questions
+* confidence_score
+* grounding_refs
+
+### Result
+
+Outputs became easier to parse and display.
+
+---
+
+## Prompt Iteration 4
+
+Added grounding requirements.
+
+Prompt instruction:
+
+"Only use information provided in the uploaded documents."
+
+Prompt instruction:
+
+"Do not fabricate citations."
+
+### Result
+
+Reduced hallucinations.
+
+Improved trustworthiness.
+
+---
+
+# Version 4 – OpenAI Integration
+
+## Goal
+
+Replace mock outputs with real AI-generated research syntheses.
+
+## Problem Encountered
+
+Application crashed.
+
+Error:
+
+APIRemovedInV1
+
+Cause:
+
+The project originally used:
+
+openai.ChatCompletion.create()
+
+which is deprecated in OpenAI v1.
+
+## Fix
+
+Migrated to:
+
+from openai import OpenAI
+
+client.chat.completions.create()
+
+## Outcome
+
+Successfully connected GPT-4o-mini.
+
+Real research syntheses were generated.
+
+---
+
+# Version 5 – Grounding Improvements
+
+## Goal
+
+Make outputs traceable to source documents.
+
+## Problem
+
+Grounding references displayed only:
+
+[0]
+
+which was difficult to interpret.
+
+## Solution
+
+Added:
+
+* Document identifiers
+* Source document previews
+* Expandable source sections
+
+## Outcome
+
+Users can verify where the synthesis originated.
+
+This better satisfies the grounding requirement.
+
+---
+
+# Version 6 – Agent Feedback Loop
+
+## Goal
+
+Introduce agentic behavior.
+
+## Agent Workflow
+
+Step 1:
+Read uploaded documents.
+
+Step 2:
+Generate synthesis.
+
+Step 3:
+Extract themes.
+
+Step 4:
+Identify methodologies.
+
+Step 5:
+Identify research gaps.
+
+Step 6:
+Generate future research questions.
+
+Step 7:
+Receive reviewer feedback.
+
+Step 8:
+Refine synthesis.
+
+## Result
+
+The system now performs multiple tasks and can revise its own output.
+
+This is the first version that behaves like an agent instead of a single prompt-response application.
+
+---
+
+# Testing
+
+## Test 1
+
+Input:
+
+Single engineering research paper abstract.
+
+Expected:
+
+* Summary generated
+* Themes extracted
+* Research gaps identified
+
+Result:
+
+PASS
+
+---
+
+## Test 2
+
+Input:
+
+Multiple research abstracts.
+
+Expected:
+
+* Cross-document synthesis
+* Multiple themes
+
+Result:
+
+PASS
+
+---
+
+## Test 3
+
+Input:
+
+Reviewer feedback requesting improvements.
+
+Expected:
+
+* Updated synthesis
+
+Result:
+
+PASS
+
+---
+
+# Current Limitations
+
+1. PDF processing not yet implemented.
+
+2. Grounding references operate at document level rather than sentence level.
+
+3. Conflicting findings detection is limited when only one document is supplied.
+
+4. Confidence score is generated by the model and has not been independently calibrated.
+
+---
+
+# Future Improvements
+
+## Version 7
+
+* PDF upload support
+* Multi-paper comparison
+
+## Version 8
+
+* Citation extraction
+* Better conflict detection
+
+## Version 9
+
+* Downloadable literature review report
+
+## Version 10
+
+* Research trend visualization dashboard
+
+---
+
+# Human Review Requirement
+
+This system is intended to assist research synthesis.
+
+All generated outputs require human review before being used in academic, professional, or research decision-making.
