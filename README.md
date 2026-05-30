@@ -1,5 +1,9 @@
 # Research Synthesis Agent
 
+## Deployed App
+
+https://your-app-name.streamlit.app
+
 ## Overview
 
 Research Synthesis Agent is an AI-powered research assistant built using Streamlit and OpenAI. The system helps users analyze research abstracts and research documents by generating structured literature-review style outputs.

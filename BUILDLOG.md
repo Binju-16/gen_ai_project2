@@ -347,3 +347,35 @@ PASS
 This system is intended to assist research synthesis.
 
 All generated outputs require human review before being used in academic, professional, or research decision-making.
+
+---
+Run: Research Synthesis Agent
+Input documents: 1
+Model: gpt-4o-mini
+Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
+{
+  "research_summary": "The paper investigates the performance of timber-steel composite floor systems, focusing on the behavior of cross-laminated timber (CLT)-steel composite beams with self-tapping screws as shear connectors. It highlights the influence of various parameters on performance and presents methods for determining bending stiffness and moment resistance, demonstrating significant improvements in moment resistance due to partial composite action.",
+  "major_themes": [
+    "Timber-steel composite systems",
+    "Cross-laminated timber (CLT)",
+    "Shear connections in structural engineering"
+  ],
+  "methodologies": [
+    "Experimental analysis",
+    "Behavioral assessment of composite beams",
+    "Design approach comparison"
+  ],
+  "conflicting_findings": [],
+  "research_gaps": [
+    "Need for further investigation into the long-term performance of shear connections",
+    "Limited studies on the effects of varying environmental conditions on composite action"
+  ],
+  "future_research_questions": [
+    "How do different environmental conditions affect the performance of CLT-steel composite beams?",
+    "What are the long-term durability implications of using self-tapping screws in shear connections?"
+  ],
+  "confidence_score": 1.0,
+  "grounding_refs": [
+    0
+  ]
+}
