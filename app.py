@@ -11,7 +11,7 @@ load_dotenv()
 
 st.set_page_config(page_title="Research Synthesis Agent", layout="wide")
 
-st.title("Research Synthesis Agent — Draft")
+st.title("Research Synthesis Agent ")
 
 st.markdown(
     """
@@ -271,4 +271,4 @@ if run_agent:
         pass
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("Draft — human review required before any action.")
+st.sidebar.markdown("Human review required before academic or professional use.")
