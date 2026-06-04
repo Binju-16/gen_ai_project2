@@ -61,7 +61,8 @@ The agent will:
 4. Detect conflicting findings  
 5. Identify research gaps  
 6. Generate future research questions  
-7. Refine output using reviewer feedback  
+7. Use tools when helpful  
+8. Refine output using reviewer feedback  
 """
     )
 
@@ -81,191 +82,192 @@ if run_agent:
             st.warning(f"Could not read uploaded file: {f.name}")
 
     if not docs:
-        st.error("Please provide at least one abstract or upload a text file.")
+        docs.append(
+            "No research document was provided. Please use the fetch_sample_abstract tool to retrieve a sample abstract about research_synthesis."
+        )
+
+    prepared = prepare_documents(docs)
+
+    result = summarize_documents(
+        prepared,
+        SYSTEM_PROMPT,
+        FEW_SHOT_EXAMPLES,
+        mock=mock,
+        model=model
+    )
+
+    st.header("Agent Output")
+
+    st.subheader("Research Summary")
+    st.write(result.get("research_summary", "No summary generated."))
+
+    st.subheader("Major Themes")
+    themes = result.get("major_themes", [])
+    if themes:
+        for item in themes:
+            st.write(f"- {item}")
     else:
-        prepared = prepare_documents(docs)
+        st.write("No major themes identified.")
 
-        result = summarize_documents(
-            prepared,
-            SYSTEM_PROMPT,
-            FEW_SHOT_EXAMPLES,
-            mock=mock,
-            model=model
-        )
+    st.subheader("Methodologies")
+    methodologies = result.get("methodologies", [])
+    if methodologies:
+        for item in methodologies:
+            st.write(f"- {item}")
+    else:
+        st.write("No methodologies identified.")
 
-        st.header("Agent Output")
+    st.subheader("Conflicting Findings")
+    conflicts = result.get("conflicting_findings", [])
+    if conflicts:
+        for item in conflicts:
+            st.write(f"- {item}")
+    else:
+        st.write("No conflicting findings detected.")
 
-        st.subheader("Research Summary")
-        st.write(result.get("research_summary", "No summary generated."))
+    st.subheader("Research Gaps")
+    gaps = result.get("research_gaps", [])
+    if gaps:
+        for item in gaps:
+            st.write(f"- {item}")
+    else:
+        st.write("No research gaps identified.")
 
-        st.subheader("Major Themes")
-        themes = result.get("major_themes", [])
-        if themes:
-            for item in themes:
-                st.write(f"- {item}")
+    st.subheader("Future Research Questions")
+    questions = result.get("future_research_questions", [])
+    if questions:
+        for item in questions:
+            st.write(f"- {item}")
+    else:
+        st.write("No future research questions generated.")
+
+    st.subheader("Confidence Score")
+    st.write(result.get("confidence_score", "Not provided"))
+
+    st.subheader("Tools Used")
+    tools_used = result.get("tools_used", [])
+
+    if tools_used:
+        for tool in tools_used:
+            st.success(f"Tool called: {tool}")
+    else:
+        st.info("No tool was called for this run.")
+
+    st.subheader("Grounding References")
+    refs = result.get("grounding_refs", [])
+
+    if refs:
+        for ref in refs:
+            try:
+                ref_index = int(ref)
+                st.markdown(f"### Document {ref_index + 1}")
+
+                if ref_index < len(prepared):
+                    preview = prepared[ref_index]["text"][:500]
+                    st.info(preview + ("..." if len(prepared[ref_index]["text"]) > 500 else ""))
+                else:
+                    st.warning(f"Document reference {ref_index} was returned, but no matching document was found.")
+            except Exception:
+                st.warning(f"Invalid grounding reference: {ref}")
+    else:
+        st.write("No grounding references provided.")
+
+    st.subheader("Source Documents Used")
+
+    for doc in prepared:
+        with st.expander(f"Document {doc['id'] + 1}"):
+            st.write(doc["text"])
+
+    st.warning(
+        "Human review is required before using this synthesis for academic or professional decisions."
+    )
+
+    st.subheader("Reviewer Feedback")
+
+    feedback = st.text_area(
+        "Tell the agent how to improve the synthesis. Example: focus more on limitations, simplify the summary, or generate stronger research questions."
+    )
+
+    if st.button("Refine with Feedback"):
+        if not feedback.strip():
+            st.error("Please enter feedback text.")
         else:
-            st.write("No major themes identified.")
+            refined = refine_summary_with_feedback(
+                result,
+                feedback,
+                SYSTEM_PROMPT,
+                mock=mock,
+                model=model
+            )
 
-        st.subheader("Methodologies")
-        methodologies = result.get("methodologies", [])
-        if methodologies:
-            for item in methodologies:
-                st.write(f"- {item}")
-        else:
-            st.write("No methodologies identified.")
+            st.header("Refined Agent Output")
 
-        st.subheader("Conflicting Findings")
-        conflicts = result.get("conflicting_findings", [])
-        if conflicts:
-            for item in conflicts:
-                st.write(f"- {item}")
-        else:
-            st.write("No conflicting findings detected.")
+            st.subheader("Refined Research Summary")
+            st.write(refined.get("research_summary", "No refined summary generated."))
 
-        st.subheader("Research Gaps")
-        gaps = result.get("research_gaps", [])
-        if gaps:
-            for item in gaps:
-                st.write(f"- {item}")
-        else:
-            st.write("No research gaps identified.")
-
-        st.subheader("Future Research Questions")
-        questions = result.get("future_research_questions", [])
-        if questions:
-            for item in questions:
-                st.write(f"- {item}")
-        else:
-            st.write("No future research questions generated.")
-
-        st.subheader("Confidence Score")
-        st.write(result.get("confidence_score", "Not provided"))
-
-        st.subheader("Grounding References")
-
-        refs = result.get("grounding_refs", [])
-
-        if refs:
-            for ref in refs:
-                try:
-                    ref_index = int(ref)
-                    st.markdown(f"### Document {ref_index + 1}")
-
-                    if ref_index < len(prepared):
-                        preview = prepared[ref_index]["text"][:500]
-                        st.info(preview + ("..." if len(prepared[ref_index]["text"]) > 500 else ""))
-                    else:
-                        st.warning(f"Document reference {ref_index} was returned, but no matching document was found.")
-                except Exception:
-                    st.warning(f"Invalid grounding reference: {ref}")
-        else:
-            st.write("No grounding references provided.")
-
-        st.subheader("Source Documents Used")
-
-        for doc in prepared:
-            with st.expander(f"Document {doc['id'] + 1}"):
-                st.write(doc["text"])
-
-        st.warning(
-            "Human review is required before using this synthesis for academic or professional decisions."
-        )
-
-        st.subheader("Reviewer Feedback")
-
-        feedback = st.text_area(
-            "Tell the agent how to improve the synthesis. Example: focus more on limitations, simplify the summary, or generate stronger research questions."
-        )
-
-        if st.button("Refine with Feedback"):
-            if not feedback.strip():
-                st.error("Please enter feedback text.")
+            st.subheader("Refined Major Themes")
+            refined_themes = refined.get("major_themes", [])
+            if refined_themes:
+                for item in refined_themes:
+                    st.write(f"- {item}")
             else:
-                refined = refine_summary_with_feedback(
-                    result,
-                    feedback,
-                    SYSTEM_PROMPT,
-                    mock=mock,
-                    model=model
-                )
+                st.write("No refined themes generated.")
 
-                st.header("Refined Agent Output")
+            st.subheader("Refined Methodologies")
+            refined_methods = refined.get("methodologies", [])
+            if refined_methods:
+                for item in refined_methods:
+                    st.write(f"- {item}")
+            else:
+                st.write("No refined methodologies generated.")
 
-                st.subheader("Refined Research Summary")
-                st.write(refined.get("research_summary", "No refined summary generated."))
+            st.subheader("Refined Conflicting Findings")
+            refined_conflicts = refined.get("conflicting_findings", [])
+            if refined_conflicts:
+                for item in refined_conflicts:
+                    st.write(f"- {item}")
+            else:
+                st.write("No refined conflicting findings generated.")
 
-                st.subheader("Refined Major Themes")
-                refined_themes = refined.get("major_themes", [])
-                if refined_themes:
-                    for item in refined_themes:
-                        st.write(f"- {item}")
-                else:
-                    st.write("No refined themes generated.")
+            st.subheader("Refined Research Gaps")
+            refined_gaps = refined.get("research_gaps", [])
+            if refined_gaps:
+                for item in refined_gaps:
+                    st.write(f"- {item}")
+            else:
+                st.write("No refined research gaps generated.")
 
-                st.subheader("Refined Methodologies")
-                refined_methods = refined.get("methodologies", [])
-                if refined_methods:
-                    for item in refined_methods:
-                        st.write(f"- {item}")
-                else:
-                    st.write("No refined methodologies generated.")
+            st.subheader("Refined Future Research Questions")
+            refined_questions = refined.get("future_research_questions", [])
+            if refined_questions:
+                for item in refined_questions:
+                    st.write(f"- {item}")
+            else:
+                st.write("No refined future research questions generated.")
 
-                st.subheader("Refined Conflicting Findings")
-                refined_conflicts = refined.get("conflicting_findings", [])
-                if refined_conflicts:
-                    for item in refined_conflicts:
-                        st.write(f"- {item}")
-                else:
-                    st.write("No refined conflicting findings generated.")
+            st.subheader("Refined Confidence Score")
+            st.write(refined.get("confidence_score", "Not provided"))
 
-                st.subheader("Refined Research Gaps")
-                refined_gaps = refined.get("research_gaps", [])
-                if refined_gaps:
-                    for item in refined_gaps:
-                        st.write(f"- {item}")
-                else:
-                    st.write("No refined research gaps generated.")
+            st.subheader("Tools Used During Refinement")
+            refined_tools_used = refined.get("tools_used", [])
 
-                st.subheader("Refined Future Research Questions")
-                refined_questions = refined.get("future_research_questions", [])
-                if refined_questions:
-                    for item in refined_questions:
-                        st.write(f"- {item}")
-                else:
-                    st.write("No refined future research questions generated.")
+            if refined_tools_used:
+                for tool in refined_tools_used:
+                    st.success(f"Tool called: {tool}")
+            else:
+                st.info("No tool was called during refinement.")
 
-                st.subheader("Refined Confidence Score")
-                st.write(refined.get("confidence_score", "Not provided"))
-
-                st.subheader("Refined Grounding References")
-                refined_refs = refined.get("grounding_refs", [])
-
-                if refined_refs:
-                    for ref in refined_refs:
-                        try:
-                            ref_index = int(ref)
-                            st.markdown(f"### Document {ref_index + 1}")
-
-                            if ref_index < len(prepared):
-                                preview = prepared[ref_index]["text"][:500]
-                                st.info(preview + ("..." if len(prepared[ref_index]["text"]) > 500 else ""))
-                            else:
-                                st.warning(f"Document reference {ref_index} was returned, but no matching document was found.")
-                        except Exception:
-                            st.warning(f"Invalid grounding reference: {ref}")
-                else:
-                    st.write("No refined grounding references provided.")
-
-        try:
-            with open("BUILDLOG.md", "a", encoding="utf-8") as f:
-                f.write("\n---\n")
-                f.write("Run: Research Synthesis Agent\n")
-                f.write(f"Input documents: {len(docs)}\n")
-                f.write(f"Model: {model}\n")
-                f.write("Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions\n")
-                f.write(json.dumps(result, indent=2) + "\n")
-        except Exception:
-            pass
+    try:
+        with open("BUILDLOG.md", "a", encoding="utf-8") as f:
+            f.write("\n---\n")
+            f.write("Run: Research Synthesis Agent\n")
+            f.write(f"Input documents: {len(docs)}\n")
+            f.write(f"Model: {model}\n")
+            f.write("Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions\n")
+            f.write(f"Tools used: {result.get('tools_used', [])}\n")
+            f.write(json.dumps(result, indent=2) + "\n")
+    except Exception:
+        pass
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("Draft — human review required before any action.")
