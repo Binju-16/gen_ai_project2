@@ -1,7 +1,7 @@
 # Research Synthesis Agent
 
 ## Live Application
-
+https://genaiproject2-7wki78ter6y2rdjtb89jji.streamlit.app/
 
 ## Overview
 
