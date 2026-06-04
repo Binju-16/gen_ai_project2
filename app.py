@@ -55,14 +55,15 @@ with col2:
         """
 The agent will:
 
-1. Summarize research content  
-2. Extract major themes  
-3. Identify methodologies  
-4. Detect conflicting findings  
-5. Identify research gaps  
-6. Generate future research questions  
-7. Use tools when helpful  
-8. Refine output using reviewer feedback  
+1. Analyze uploaded research
+2. Decide whether additional information is needed
+3. Invoke available tools when appropriate
+4. Generate a structured synthesis
+5. Identify themes and methodologies
+6. Detect conflicts and research gaps
+7. Generate future research questions
+8. Accept reviewer feedback
+9. Revise the synthesis 
 """
     )
 

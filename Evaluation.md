@@ -205,6 +205,46 @@ The agent adapted successfully to a different research domain without prompt mod
 
 ---
 
+---
+
+# Test Case 4
+
+## Input
+
+No research document provided.
+
+## Expected Outcome
+
+* Agent should recognize missing input
+* Agent should invoke an available tool
+* Tool should return research content
+* Agent should generate a grounded synthesis from tool output
+
+## Actual Result
+
+PASS
+
+### Tool Called
+
+fetch_sample_abstract
+
+### Scores
+
+| Criterion              | Score |
+| ---------------------- | ----- |
+| Tool Invocation        | 5     |
+| Tool Output Usage      | 5     |
+| Summary Quality        | 5     |
+| Grounding              | 5     |
+| Agent Behavior         | 5     |
+
+### Notes
+
+The model successfully invoked the `fetch_sample_abstract` tool when no research documents were provided. The returned abstract was incorporated into the synthesis and displayed under the "Tools Used" section. This demonstrates agentic behavior through OpenAI function calling rather than relying solely on direct prompting.
+
+This test was added after instructor feedback identified the lack of tool use in the draft version.
+
+
 # Overall Evaluation
 
 ## Strengths
@@ -232,3 +272,4 @@ The Research Synthesis Agent successfully meets the goals of the MVP.
 The system consistently generates structured summaries, identifies themes and methodologies, highlights research gaps, and proposes future research directions. Grounding mechanisms and reviewer feedback support responsible use and iterative improvement.
 
 Future versions will focus on stronger multi-document comparison, improved conflict detection, and enhanced citation-level grounding.
+

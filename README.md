@@ -1,8 +1,7 @@
 # Research Synthesis Agent
 
-## Deployed App
+## Live Application
 
-https://your-app-name.streamlit.app
 
 ## Overview
 
@@ -101,6 +100,45 @@ The agent revises its synthesis based on the reviewer feedback.
 * Iterative synthesis generation
 
 ---
+
+### Tool Calling
+
+The Research Synthesis Agent uses OpenAI function calling to support agentic behavior.
+
+Available Tool:
+
+#### fetch_sample_abstract(topic)
+
+Purpose:
+
+Retrieve a sample research abstract when insufficient research content is available.
+
+Agent Workflow:
+
+1. User submits a request
+2. Model evaluates available information
+3. Model decides whether a tool is required
+4. Tool executes
+5. Tool returns research content
+6. Model generates a grounded synthesis
+
+Example:
+
+No research document provided
+
+↓
+
+Model calls fetch_sample_abstract()
+
+↓
+
+Tool returns sample abstract
+
+↓
+
+Model generates research synthesis
+
+This functionality was added after instructor feedback identified that the initial draft relied solely on prompting rather than true tool use.
 
 ## Example Output
 
