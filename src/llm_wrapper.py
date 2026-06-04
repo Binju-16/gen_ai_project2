@@ -7,6 +7,41 @@ try:
 except Exception:
     OpenAI = None
 
+from src.tools import fetch_sample_abstract
+
+
+TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "fetch_sample_abstract",
+            "description": (
+                "Fetch a built-in sample research abstract when the user asks for an example, "
+                "does not provide enough research text, or needs a sample topic to analyze."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "description": (
+                            "The research topic to fetch. "
+                            "Options: education_ai, research_synthesis, healthcare_ai."
+                        ),
+                        "enum": [
+                            "education_ai",
+                            "research_synthesis",
+                            "healthcare_ai"
+                        ]
+                    }
+                },
+                "required": ["topic"],
+                "additionalProperties": False
+            }
+        }
+    }
+]
+
 
 def _mock_summarize(prepared):
     grounding_refs = [p["id"] for p in prepared]
@@ -40,7 +75,48 @@ def _mock_summarize(prepared):
             "What limitations are repeated across the literature?"
         ],
         "confidence_score": 0.55 if len(combined_text) < 1000 else 0.75,
-        "grounding_refs": grounding_refs
+        "grounding_refs": grounding_refs,
+        "tools_used": ["mock_mode"]
+    }
+
+
+def _safe_json_loads(text: str) -> dict:
+    try:
+        return json.loads(text)
+    except Exception:
+        return {
+            "research_summary": text,
+            "major_themes": [],
+            "methodologies": [],
+            "conflicting_findings": [],
+            "research_gaps": [],
+            "future_research_questions": [],
+            "confidence_score": 0.3,
+            "grounding_refs": [],
+            "tools_used": []
+        }
+
+
+def _execute_tool_call(tool_call):
+    function_name = tool_call.function.name
+    arguments = json.loads(tool_call.function.arguments or "{}")
+
+    if function_name == "fetch_sample_abstract":
+        topic = arguments.get("topic", "research_synthesis")
+        tool_result = fetch_sample_abstract(topic)
+
+        return {
+            "tool_call_id": tool_call.id,
+            "role": "tool",
+            "name": function_name,
+            "content": json.dumps(tool_result)
+        }
+
+    return {
+        "tool_call_id": tool_call.id,
+        "role": "tool",
+        "name": function_name,
+        "content": json.dumps({"error": f"Unknown tool: {function_name}"})
     }
 
 
@@ -68,34 +144,50 @@ def summarize_documents(
             "role": "user",
             "content": (
                 "Analyze the following research documents. "
-                "Return only valid JSON using the required schema.\n\n"
+                "If the documents are missing, too short, or the user appears to need an example, "
+                "you may call the fetch_sample_abstract tool before producing the final synthesis. "
+                "Return only valid JSON using the required schema. "
+                "Include a tools_used field listing any tools called.\n\n"
                 f"Few-shot examples:\n{json.dumps(few_shot, indent=2)}\n\n"
                 f"Documents:\n{json.dumps(prepared, indent=2)}"
             )
         }
     ]
 
-    resp = client.chat.completions.create(
+    first_response = client.chat.completions.create(
         model=model,
         messages=messages,
+        tools=TOOLS,
+        tool_choice="auto",
         temperature=0.0
     )
 
-    text = resp.choices[0].message.content
+    first_message = first_response.choices[0].message
 
-    try:
-        return json.loads(text)
-    except Exception:
-        return {
-            "research_summary": text,
-            "major_themes": [],
-            "methodologies": [],
-            "conflicting_findings": [],
-            "research_gaps": [],
-            "future_research_questions": [],
-            "confidence_score": 0.3,
-            "grounding_refs": []
-        }
+    if first_message.tool_calls:
+        messages.append(first_message)
+
+        tools_used = []
+
+        for tool_call in first_message.tool_calls:
+            tools_used.append(tool_call.function.name)
+            messages.append(_execute_tool_call(tool_call))
+
+        final_response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.0
+        )
+
+        text = final_response.choices[0].message.content
+        parsed = _safe_json_loads(text)
+        parsed["tools_used"] = tools_used
+        return parsed
+
+    text = first_message.content
+    parsed = _safe_json_loads(text)
+    parsed.setdefault("tools_used", [])
+    return parsed
 
 
 def refine_summary_with_feedback(
@@ -115,6 +207,7 @@ def refine_summary_with_feedback(
             float(refined.get("confidence_score", 0.5)) + 0.05,
             1.0
         )
+        refined["tools_used"] = refined.get("tools_used", []) + ["mock_feedback_refinement"]
         return refined
 
     api_key = os.getenv("OPENAI_API_KEY")
@@ -131,7 +224,8 @@ def refine_summary_with_feedback(
             "role": "user",
             "content": (
                 "Revise the existing research synthesis based on the reviewer feedback. "
-                "Return only valid JSON using the required schema.\n\n"
+                "Return only valid JSON using the required schema. "
+                "Include a tools_used field.\n\n"
                 f"Existing synthesis:\n{json.dumps(summary, indent=2)}\n\n"
                 f"Reviewer feedback:\n{feedback}"
             )
@@ -141,21 +235,34 @@ def refine_summary_with_feedback(
     resp = client.chat.completions.create(
         model=model,
         messages=messages,
+        tools=TOOLS,
+        tool_choice="auto",
         temperature=0.0
     )
 
-    text = resp.choices[0].message.content
+    message = resp.choices[0].message
 
-    try:
-        return json.loads(text)
-    except Exception:
-        return {
-            "research_summary": text,
-            "major_themes": [],
-            "methodologies": [],
-            "conflicting_findings": [],
-            "research_gaps": [],
-            "future_research_questions": [],
-            "confidence_score": 0.3,
-            "grounding_refs": []
-        }
+    if message.tool_calls:
+        messages.append(message)
+
+        tools_used = []
+
+        for tool_call in message.tool_calls:
+            tools_used.append(tool_call.function.name)
+            messages.append(_execute_tool_call(tool_call))
+
+        final_response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.0
+        )
+
+        text = final_response.choices[0].message.content
+        parsed = _safe_json_loads(text)
+        parsed["tools_used"] = tools_used
+        return parsed
+
+    text = message.content
+    parsed = _safe_json_loads(text)
+    parsed.setdefault("tools_used", [])
+    return parsed
