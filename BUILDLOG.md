@@ -414,3 +414,49 @@ Tools used: ['fetch_sample_abstract']
     "fetch_sample_abstract"
   ]
 }
+
+
+## V2 – Tool Calling Implementation
+
+### Problem Identified
+
+The draft version of the Research Synthesis Agent relied entirely on prompt-based interactions. While the system could generate summaries, themes, methodologies, research gaps, and future research questions, it did not demonstrate true agentic behavior through tool use.
+
+Instructor feedback noted that the model was making direct LLM calls but was never given a tool definition that it could decide to invoke.
+
+### Change Implemented
+
+Added OpenAI function calling using a custom tool:
+
+- fetch_sample_abstract(topic)
+
+The model now has access to a tool definition and can decide whether to call the tool before generating a response.
+
+### Tool Workflow
+
+User Request
+↓
+LLM evaluates available information
+↓
+Tool call decision
+↓
+fetch_sample_abstract()
+↓
+Tool returns grounded research content
+↓
+LLM generates synthesis using tool output
+
+### Testing
+
+Test scenario:
+- User provides no research documents.
+- Model chooses to call fetch_sample_abstract.
+- Tool returns a sample abstract.
+- Agent generates a grounded synthesis from the returned content.
+
+Result:
+PASS
+
+### Lessons Learned
+
+Prompt engineering alone does not create an agent. Agentic behavior requires the model to have access to tools and the ability to decide when to use them. Implementing function calling significantly improved compliance with Project 2 requirements and made the workflow more realistic.
