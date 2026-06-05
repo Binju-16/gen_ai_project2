@@ -1,42 +1,58 @@
-SAMPLE_ABSTRACTS = {
-    "education_ai": {
-        "title": "AI Tutoring and Student Learning",
-        "abstract": (
-            "This study examines the use of AI tutoring systems in undergraduate education. "
-            "Results suggest that students using AI tutors improved quiz performance, but the study also notes concerns about overreliance and unequal access."
-        )
-    },
-    "research_synthesis": {
-        "title": "Research Synthesis with Large Language Models",
-        "abstract": (
-            "This paper explores how large language models can support literature review workflows. "
-            "The study finds that LLMs can summarize themes across papers, but human review remains necessary to verify claims and detect missing context."
-        )
-    },
-    "healthcare_ai": {
-        "title": "Machine Learning for Clinical Decision Support",
-        "abstract": (
-            "This study evaluates machine learning models for clinical decision support. "
-            "The findings show improved prediction accuracy, but limitations include bias in training data and lack of interpretability."
-        )
-    }
-}
+import requests
+
+
+SEMANTIC_SCHOLAR_SEARCH_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 
 
 def fetch_sample_abstract(topic: str) -> dict:
     """
-    Tool function used by the model to fetch a built-in sample abstract.
-    This demonstrates real tool/function calling for the agentic workflow.
+    Tool function used by the model to fetch a real research abstract
+    from Semantic Scholar based on a topic query.
     """
     topic = topic.lower().strip()
 
-    if topic not in SAMPLE_ABSTRACTS:
+    params = {
+        "query": topic,
+        "limit": 1,
+        "fields": "title,abstract,year,authors,url"
+    }
+
+    try:
+        response = requests.get(
+            SEMANTIC_SCHOLAR_SEARCH_URL,
+            params=params,
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        papers = data.get("data", [])
+
+        if not papers:
+            return {
+                "title": "No paper found",
+                "abstract": f"No Semantic Scholar paper was found for topic: {topic}",
+                "source": "Semantic Scholar",
+                "url": None
+            }
+
+        paper = papers[0]
+
         return {
-            "title": "No sample found",
-            "abstract": (
-                "No built-in abstract was found for this topic. "
-                "Available topics are: education_ai, research_synthesis, healthcare_ai."
-            )
+            "title": paper.get("title", "Untitled"),
+            "abstract": paper.get("abstract") or "No abstract available.",
+            "year": paper.get("year"),
+            "authors": [
+                author.get("name") for author in paper.get("authors", [])
+            ],
+            "source": "Semantic Scholar",
+            "url": paper.get("url")
         }
 
-    return SAMPLE_ABSTRACTS[topic]
+    except Exception as e:
+        return {
+            "title": "Tool error",
+            "abstract": f"Semantic Scholar lookup failed: {str(e)}",
+            "source": "Semantic Scholar",
+            "url": None
+        }
