@@ -4,11 +4,11 @@ import requests
 SEMANTIC_SCHOLAR_SEARCH_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 
 
-def fetch_sample_abstract(topic: str) -> dict:
+def fetch_related_work(topic: str) -> dict:
     """
-    Tool function used by the model to fetch a real research abstract
-    from Semantic Scholar based on a topic query.
-    """
+Searches Semantic Scholar for a real related research paper based on the user's topic.
+This tool allows the agent to retrieve external research context during synthesis.
+"""
     topic = topic.lower().strip()
 
     params = {

@@ -107,7 +107,7 @@ The Research Synthesis Agent uses OpenAI function calling to support agentic beh
 
 Available Tool:
 
-#### fetch_sample_abstract(topic)
+#### fetch_related_work(topic)
 
 Purpose:
 
@@ -128,7 +128,7 @@ No research document provided
 
 ↓
 
-Model calls fetch_sample_abstract()
+Model calls fetch_related_work()
 
 ↓
 

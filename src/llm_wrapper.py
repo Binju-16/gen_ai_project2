@@ -7,14 +7,14 @@ try:
 except Exception:
     OpenAI = None
 
-from src.tools import fetch_sample_abstract
+from src.tools import fetch_related_work
 
 
 TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "fetch_sample_abstract",
+            "name": "fetch_related_work",
             "description": (
                 "Search Semantic Scholar for a real research paper related to the user's topic. "
                 "Use this tool when the user asks for related work, when no abstract is provided, "
@@ -97,9 +97,9 @@ def _execute_tool_call(tool_call):
     function_name = tool_call.function.name
     arguments = json.loads(tool_call.function.arguments or "{}")
 
-    if function_name == "fetch_sample_abstract":
+    if function_name == "fetch_related_work":
         topic = arguments.get("topic", "research_synthesis")
-        tool_result = fetch_sample_abstract(topic)
+        tool_result = fetch_related_work(topic)
 
         return {
             "tool_call_id": tool_call.id,
@@ -141,7 +141,7 @@ def summarize_documents(
             "content": (
                 "Analyze the following research documents. "
                 "If the documents are missing, too short, or would benefit from related research context,"
-                "you may call the fetch_sample_abstract tool before producing the final synthesis. "
+                "you may call the fetch_related_work tool before producing the final synthesis. "
                 "Return only valid JSON using the required schema. "
                 "Include a tools_used field listing any tools called.\n\n"
                 f"Few-shot examples:\n{json.dumps(few_shot, indent=2)}\n\n"
