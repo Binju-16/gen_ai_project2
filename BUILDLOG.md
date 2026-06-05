@@ -560,3 +560,142 @@ Tools used: ['fetch_sample_abstract']
     "fetch_sample_abstract"
   ]
 }
+
+# Version 7 – Live Research Retrieval Agent
+
+## Problem Identified
+
+The initial tool-calling implementation successfully demonstrated OpenAI function calling, but the tool returned a predefined sample abstract. While this satisfied the basic requirement for tool use, the tool did not retrieve any information beyond what was already stored in the application.
+
+Instructor feedback suggested making the tool perform real work by querying an external research source such as Semantic Scholar or arXiv.
+
+---
+
+## Change Implemented
+
+Replaced:
+
+* fetch_sample_abstract(topic)
+
+with:
+
+* fetch_related_work(topic)
+
+The new tool queries the Semantic Scholar API and retrieves real research papers relevant to the user's topic.
+
+Information returned includes:
+
+* Paper title
+* Abstract
+* Publication year
+* Authors
+* URL
+
+---
+
+## Agent Workflow
+
+User provides research topic or uploaded document
+
+↓
+
+Model evaluates available information
+
+↓
+
+Model decides whether additional context is needed
+
+↓
+
+fetch_related_work(topic)
+
+↓
+
+Semantic Scholar API queried
+
+↓
+
+Related research papers retrieved
+
+↓
+
+Model incorporates retrieved information
+
+↓
+
+Research synthesis generated
+
+---
+
+## Why This Improves Agentic Behavior
+
+The agent is no longer limited to user-provided information.
+
+The model can now:
+
+* Retrieve external knowledge
+* Gather supporting evidence
+* Expand research context
+* Use retrieved information when generating a synthesis
+
+This better represents an autonomous research assistant rather than a simple summarization tool.
+
+---
+
+## Tool Calling Evaluation
+
+### Test Case
+
+Input:
+
+Research synthesis using large language models
+
+Expected Behavior:
+
+* Model determines additional context would be helpful
+* Model calls fetch_related_work
+* Semantic Scholar returns related papers
+* Agent incorporates retrieved information into synthesis
+
+Result:
+
+PASS
+
+Tool call executed successfully.
+
+The application displayed the tool call in the interface and generated a synthesis using retrieved research content.
+
+---
+
+## Lessons Learned
+
+Prompt engineering alone does not create an agent.
+
+Agentic behavior emerges when the model is given access to tools and can decide when to use them.
+
+Replacing a static example tool with a live research retrieval tool significantly improved both the realism and usefulness of the system.
+
+---
+
+## Current Capabilities
+
+The Research Synthesis Agent now supports:
+
+* Research document synthesis
+* Theme extraction
+* Methodology identification
+* Research gap detection
+* Future research question generation
+* Reviewer feedback refinement
+* OpenAI function calling
+* External research retrieval through Semantic Scholar
+* Grounded outputs
+* Human review safeguards
+
+---
+
+## Current Status
+
+PASS
+
+The system successfully demonstrates agentic behavior through autonomous tool selection, external knowledge retrieval, synthesis generation, and iterative refinement.
