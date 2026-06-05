@@ -6,14 +6,14 @@ SEMANTIC_SCHOLAR_SEARCH_URL = "https://api.semanticscholar.org/graph/v1/paper/se
 
 def fetch_related_work(topic: str) -> dict:
     """
-Searches Semantic Scholar for a real related research paper based on the user's topic.
-This tool allows the agent to retrieve external research context during synthesis.
-"""
-    topic = topic.lower().strip()
+    Searches Semantic Scholar for real related research papers based on the user's topic.
+    This tool allows the agent to retrieve external research context during synthesis.
+    """
+    topic = topic.strip()
 
     params = {
         "query": topic,
-        "limit": 1,
+        "limit": 3,
         "fields": "title,abstract,year,authors,url"
     }
 
@@ -24,35 +24,60 @@ This tool allows the agent to retrieve external research context during synthesi
             timeout=10
         )
         response.raise_for_status()
-        data = response.json()
 
+        data = response.json()
         papers = data.get("data", [])
 
         if not papers:
             return {
-                "title": "No paper found",
-                "abstract": f"No Semantic Scholar paper was found for topic: {topic}",
+                "query": topic,
                 "source": "Semantic Scholar",
-                "url": None
+                "papers": [],
+                "message": f"No related papers found for query: {topic}"
             }
 
-        paper = papers[0]
+        results = []
+
+        for paper in papers:
+            results.append(
+                {
+                    "title": paper.get("title", "Untitled"),
+                    "abstract": paper.get("abstract") or "No abstract available.",
+                    "year": paper.get("year"),
+                    "authors": [
+                        author.get("name")
+                        for author in paper.get("authors", [])
+                    ],
+                    "url": paper.get("url")
+                }
+            )
 
         return {
-            "title": paper.get("title", "Untitled"),
-            "abstract": paper.get("abstract") or "No abstract available.",
-            "year": paper.get("year"),
-            "authors": [
-                author.get("name") for author in paper.get("authors", [])
-            ],
+            "query": topic,
             "source": "Semantic Scholar",
-            "url": paper.get("url")
+            "papers": results
+        }
+
+    except requests.exceptions.Timeout:
+        return {
+            "query": topic,
+            "source": "Semantic Scholar",
+            "papers": [],
+            "error": "Semantic Scholar request timed out."
+        }
+
+    except requests.exceptions.RequestException as e:
+        return {
+            "query": topic,
+            "source": "Semantic Scholar",
+            "papers": [],
+            "error": f"Semantic Scholar request failed: {str(e)}"
         }
 
     except Exception as e:
         return {
-            "title": "Tool error",
-            "abstract": f"Semantic Scholar lookup failed: {str(e)}",
+            "query": topic,
             "source": "Semantic Scholar",
-            "url": None
+            "papers": [],
+            "error": f"Unexpected tool error: {str(e)}"
         }
