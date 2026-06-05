@@ -150,7 +150,7 @@ if run_agent:
     else:
         st.write("Confidence Score: Not provided")
 
-    st.subheader("Agent Actions Taken")
+    st.subheader("Tool Usage")
 
     tools_used = sorted(set(result.get("tools_used", [])))
 
