@@ -155,7 +155,10 @@ if run_agent:
         st.info("No tool was called for this run.")
 
     st.subheader("Grounding References")
-    refs = result.get("grounding_refs", [])
+    refs = [
+    ref for ref in result.get("grounding_refs", [])
+    if isinstance(ref, int) and ref < len(prepared)
+]
 
     if refs:
         for ref in refs:
