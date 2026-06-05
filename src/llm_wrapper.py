@@ -16,8 +16,9 @@ TOOLS = [
         "function": {
             "name": "fetch_sample_abstract",
             "description": (
-                "Fetch a built-in sample research abstract when the user asks for an example, "
-                "does not provide enough research text, or needs a sample topic to analyze."
+                "Search Semantic Scholar for a real research paper related to the user's topic. "
+                "Use this tool when the user asks for related work, when no abstract is provided, "
+                "or when additional research context would improve the synthesis."
             ),
             "parameters": {
                 "type": "object",
@@ -25,14 +26,9 @@ TOOLS = [
                     "topic": {
                         "type": "string",
                         "description": (
-                            "The research topic to fetch. "
-                            "Options: education_ai, research_synthesis, healthcare_ai."
-                        ),
-                        "enum": [
-                            "education_ai",
-                            "research_synthesis",
-                            "healthcare_ai"
-                        ]
+                            "A research search query, such as education AI, research synthesis, "
+                            "healthcare machine learning, timber steel composites, or another academic topic."
+                        )
                     }
                 },
                 "required": ["topic"],
@@ -144,7 +140,7 @@ def summarize_documents(
             "role": "user",
             "content": (
                 "Analyze the following research documents. "
-                "If the documents are missing, too short, or the user appears to need an example, "
+                "If the documents are missing, too short, or would benefit from related research context,"
                 "you may call the fetch_sample_abstract tool before producing the final synthesis. "
                 "Return only valid JSON using the required schema. "
                 "Include a tools_used field listing any tools called.\n\n"
