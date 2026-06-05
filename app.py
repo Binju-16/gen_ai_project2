@@ -146,13 +146,14 @@ if run_agent:
     st.write(result.get("confidence_score", "Not provided"))
 
     st.subheader("Tools Used")
-    tools_used = list(set(result.get("tools_used", [])))
+
+tools_used = list(set(result.get("tools_used", [])))
 
 if tools_used:
     for tool in tools_used:
         st.success(f"Tool called: {tool}")
-    else:
-        st.info("No tool was called for this run.")
+else:
+    st.info("No tool was called for this run.")
 
     st.subheader("Grounding References")
     refs = [
