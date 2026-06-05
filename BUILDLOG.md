@@ -699,3 +699,67 @@ The Research Synthesis Agent now supports:
 PASS
 
 The system successfully demonstrates agentic behavior through autonomous tool selection, external knowledge retrieval, synthesis generation, and iterative refinement.
+
+---
+Run: Research Synthesis Agent
+Input documents: 1
+Model: gpt-4o-mini
+Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
+Tools used: ['fetch_related_work']
+{
+  "research_summary": "The document discusses the concept of research synthesis utilizing large language models, but lacks detailed findings, methodologies, or implications.",
+  "major_themes": [],
+  "methodologies": [],
+  "conflicting_findings": [],
+  "research_gaps": [
+    "Insufficient detail on methodologies used in research synthesis with large language models",
+    "Lack of empirical evidence or case studies demonstrating effectiveness"
+  ],
+  "future_research_questions": [
+    "What specific methodologies can enhance research synthesis using large language models?",
+    "How do large language models compare to traditional synthesis methods in terms of accuracy and efficiency?"
+  ],
+  "confidence_score": 0.2,
+  "grounding_refs": [
+    0
+  ],
+  "tools_used": [
+    "fetch_related_work"
+  ]
+}
+
+---
+Run: Research Synthesis Agent
+Input documents: 1
+Model: gpt-4o-mini
+Agent tasks: summary, themes, methodologies, conflicts, gaps, research questions
+Tools used: ['fetch_related_work', 'fetch_related_work']
+{
+  "research_summary": "The study examines the relationship between age and social connections in the U.S., revealing that while the core discussion network remains stable across ages, daily social interactions tend to decline. This suggests a nuanced understanding of social connections as individuals age, influenced by social roles.",
+  "major_themes": [
+    "Social isolation",
+    "Aging and social connections",
+    "Core discussion networks"
+  ],
+  "methodologies": [
+    "Egocentric network data analysis",
+    "Time-diary data analysis"
+  ],
+  "conflicting_findings": [],
+  "research_gaps": [
+    "Limited exploration of the impact of specific social roles on core discussion networks",
+    "Need for longitudinal studies to track changes in social connections over time"
+  ],
+  "future_research_questions": [
+    "How do different social roles influence the stability of core discussion networks across various age groups?",
+    "What interventions can mitigate the decline in daily social interactions among older adults?"
+  ],
+  "confidence_score": 0.85,
+  "grounding_refs": [
+    0
+  ],
+  "tools_used": [
+    "fetch_related_work",
+    "fetch_related_work"
+  ]
+}
