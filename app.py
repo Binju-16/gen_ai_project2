@@ -11,13 +11,12 @@ load_dotenv()
 
 st.set_page_config(page_title="Research Synthesis Agent", layout="wide")
 
-st.title("Research Synthesis Agent ")
+st.title("Research Synthesis Agent")
+st.caption("AI-powered literature review assistant with tool use and research retrieval")
 
-st.markdown(
-    """
-This agent helps synthesize multiple research abstracts or text documents.
-It identifies themes, methodologies, conflicts, research gaps, and future research questions.
-"""
+st.info(
+    "This agent can analyze uploaded research, retrieve related work when useful, "
+    "synthesize findings, identify research gaps, and refine outputs based on reviewer feedback."
 )
 
 with st.sidebar:
@@ -63,7 +62,7 @@ The agent will:
 6. Detect conflicts and research gaps
 7. Generate future research questions
 8. Accept reviewer feedback
-9. Revise the synthesis 
+9. Revise the synthesis
 """
     )
 
@@ -84,7 +83,7 @@ if run_agent:
 
     if not docs:
         docs.append(
-            "No research document was provided. Please use the fetch_sample_abstract tool to retrieve a sample abstract about research_synthesis."
+            "No research document was provided. Please use the fetch_related_work tool to retrieve related research about research synthesis."
         )
 
     prepared = prepare_documents(docs)
@@ -143,37 +142,41 @@ if run_agent:
         st.write("No future research questions generated.")
 
     st.subheader("Confidence Score")
-    st.write(result.get("confidence_score", "Not provided"))
+    confidence = result.get("confidence_score", None)
 
-    st.subheader("Tools Used")
+    if isinstance(confidence, (int, float)):
+        st.progress(min(max(float(confidence), 0.0), 1.0))
+        st.write(f"Confidence Score: {float(confidence):.2f}")
+    else:
+        st.write("Confidence Score: Not provided")
 
-tools_used = list(set(result.get("tools_used", [])))
+    st.subheader("Agent Actions Taken")
 
-if tools_used:
-    for tool in tools_used:
-        st.success(f"Tool called: {tool}")
-else:
-    st.info("No tool was called for this run.")
+    tools_used = sorted(set(result.get("tools_used", [])))
+
+    if tools_used:
+        for tool in tools_used:
+            if tool == "fetch_related_work":
+                st.success("Retrieved related research using Semantic Scholar.")
+            else:
+                st.success(f"Tool called: {tool}")
+    else:
+        st.info("No external tool was called for this run.")
 
     st.subheader("Grounding References")
+
     refs = [
-    ref for ref in result.get("grounding_refs", [])
-    if isinstance(ref, int) and ref < len(prepared)
-]
+        ref for ref in result.get("grounding_refs", [])
+        if isinstance(ref, int) and ref < len(prepared)
+    ]
 
     if refs:
         for ref in refs:
-            try:
-                ref_index = int(ref)
-                st.markdown(f"### Document {ref_index + 1}")
+            ref_index = int(ref)
+            st.markdown(f"### Document {ref_index + 1}")
 
-                if ref_index < len(prepared):
-                    preview = prepared[ref_index]["text"][:500]
-                    st.info(preview + ("..." if len(prepared[ref_index]["text"]) > 500 else ""))
-                else:
-                    st.warning(f"Document reference {ref_index} was returned, but no matching document was found.")
-            except Exception:
-                st.warning(f"Invalid grounding reference: {ref}")
+            preview = prepared[ref_index]["text"][:500]
+            st.info(preview + ("..." if len(prepared[ref_index]["text"]) > 500 else ""))
     else:
         st.write("No grounding references provided.")
 
@@ -251,16 +254,26 @@ else:
                 st.write("No refined future research questions generated.")
 
             st.subheader("Refined Confidence Score")
-            st.write(refined.get("confidence_score", "Not provided"))
+            refined_confidence = refined.get("confidence_score", None)
 
-            st.subheader("Tools Used During Refinement")
-            refined_tools_used = refined.get("tools_used", [])
+            if isinstance(refined_confidence, (int, float)):
+                st.progress(min(max(float(refined_confidence), 0.0), 1.0))
+                st.write(f"Confidence Score: {float(refined_confidence):.2f}")
+            else:
+                st.write("Confidence Score: Not provided")
+
+            st.subheader("Agent Actions Taken During Refinement")
+
+            refined_tools_used = sorted(set(refined.get("tools_used", [])))
 
             if refined_tools_used:
                 for tool in refined_tools_used:
-                    st.success(f"Tool called: {tool}")
+                    if tool == "fetch_related_work":
+                        st.success("Retrieved related research using Semantic Scholar.")
+                    else:
+                        st.success(f"Tool called: {tool}")
             else:
-                st.info("No tool was called during refinement.")
+                st.info("No external tool was called during refinement.")
 
     try:
         with open("BUILDLOG.md", "a", encoding="utf-8") as f:
