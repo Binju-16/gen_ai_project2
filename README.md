@@ -132,7 +132,7 @@ Model calls fetch_related_work()
 
 ↓
 
-Tool returns sample abstract
+Tool returns retrieves related research from Semantic Scholar.
 
 ↓
 
@@ -256,7 +256,7 @@ Detailed results are documented in EVALUATION.md.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Binju-16/gen_ai_project2
 cd gen_ai_project2
 ```
 
@@ -287,9 +287,9 @@ streamlit run app.py
 Additional project documentation:
 
 * roadmap.md
-* PROJECT_JOURNAL.md
+* Project Journal.md
 * BUILDLOG.md
-* EVALUATION.md
+* Evaluation.md
 
 These documents describe the project's planning, development process, testing, prompt engineering decisions, and evaluation results.
 
